@@ -3,7 +3,7 @@
 schema_version: 1
 
 context:
-  version: "0.7.2"
+  version: "0.7.3"
   python_min: "3.12"
 
 package:
@@ -12,7 +12,7 @@ package:
 
 source:
   url: https://pypi.org/packages/source/c/cstar-forge/cstar_forge-${{ version }}.tar.gz
-  sha256: cbe737abb7856d62e6eda3a129de9f1db75f342f29be7c1634213bf20e4071cb
+  sha256: 71d7e02aea4938e52217651d78307817b584ab276128d5550db66e72d312cbf8
 
 build:
   number: 0
