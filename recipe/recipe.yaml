@@ -3,7 +3,7 @@
 schema_version: 1
 
 context:
-  version: "0.7.3"
+  version: "0.8.0"
   python_min: "3.12"
 
 package:
@@ -12,7 +12,7 @@ package:
 
 source:
   url: https://pypi.org/packages/source/c/cstar-forge/cstar_forge-${{ version }}.tar.gz
-  sha256: 71d7e02aea4938e52217651d78307817b584ab276128d5550db66e72d312cbf8
+  sha256: d8cbf5b5ca6456b55a1e8807396d74c79b6a8dddd13b1ba7be0ffadd2f20fbe0
 
 build:
   number: 0
@@ -50,6 +50,7 @@ requirements:
     - dask
     - distributed
     - threadpoolctl
+    - numba
     - fsspec
     - pydantic
     - numpy
@@ -63,8 +64,8 @@ requirements:
     - nest-asyncio
     - ujson
     - fastparquet
-    - cstar-ocean >=0.13.3
-    - roms-tools >=4.1.1,<5
+    - cstar-ocean >=0.14.0
+    - roms-tools >=5.0,<6
     # -- the `app` extra, bundled deliberately (batteries-included conda
     # package, matching the roms-tools metapackage philosophy): the blueprint
     # wizard runs under voila/jupyter out of the box --
