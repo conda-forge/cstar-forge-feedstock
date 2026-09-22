@@ -3,7 +3,10 @@
 schema_version: 1
 
 context:
-  version: "0.8.2"
+  # cstar-forge has moved into cstar-ocean (C-Star 0.15.0). From 0.9.0 this
+  # package is a compatibility shim: its `cstar_forge.*` modules forward to
+  # `cstar.*` with a DeprecationWarning naming the new path.
+  version: "0.9.0"
   python_min: "3.12"
 
 package:
@@ -12,26 +15,13 @@ package:
 
 source:
   url: https://pypi.org/packages/source/c/cstar-forge/cstar_forge-${{ version }}.tar.gz
-  sha256: a9b5aaf6a4e209c556cb25f0a9070ee83303a4ec859b44a9217ec1928a32ddb6
+  sha256: b0ed4982a3df3f858888c2c3f0e38dbe428da843d6eb328072d6c7f8ce04d021
 
 build:
   number: 0
-  # note: we expect windows builds to fail due to a downstream dependency (xesmf)
-  # not being available for windows. we still use noarch and accept the windows
-  # build failures based on previous conda-forge admin guidance.
   noarch: python
-  script:
-    - python -m pip install . -vv --no-deps --no-build-isolation
-    # Ship activate.d/deactivate.d hooks (recipe/activate.sh has the full
-    # rationale) that set PYTHONNOUSERSITE=1 on env activation, keeping the
-    # env off Python's user-site (~/.local) — which otherwise precedes the
-    # env's site-packages on sys.path and silently shadows it, a chronic
-    # breakage on HPC systems where a module Python shares ~/.local.
-    # .sh only: this is a noarch package, but the hooks target HPC/Linux/macOS;
-    # on Windows they are simply inert.
-    - mkdir -p "$PREFIX/etc/conda/activate.d" "$PREFIX/etc/conda/deactivate.d"
-    - cp "$RECIPE_DIR/activate.sh" "$PREFIX/etc/conda/activate.d/cstar-forge_pythonnousersite.sh"
-    - cp "$RECIPE_DIR/deactivate.sh" "$PREFIX/etc/conda/deactivate.d/cstar-forge_pythonnousersite.sh"
+  # No activate.d hooks any more: cstar-ocean now ships the PYTHONNOUSERSITE hooks.
+  script: python -m pip install . -vv --no-deps --no-build-isolation
 
 requirements:
   host:
@@ -41,48 +31,9 @@ requirements:
     - setuptools-scm >=8
   run:
     - python >=${{ python_min }}
-    # -- mirrors [project.dependencies] in pyproject.toml --
-    - jinja2
-    - pandas
-    - pyyaml >=6.0
-    - copernicusmarine
-    - gdown
-    - dask
-    - distributed
-    - threadpoolctl
-    - numba
-    - fsspec
-    - pydantic
-    - numpy
-    - xarray
-    - nbformat
-    - psutil
-    # typer backs the `cstar forge ...` CLI subcommand group (cstar_forge/cli.py);
-    # it currently only arrives transitively.
-    - typer
-    - kerchunk
-    - nest-asyncio
-    - ujson
-    - fastparquet
-    - cstar-ocean >=0.14.0
-    - roms-tools >=5.0,<6
-    # -- the `app` extra, bundled deliberately (batteries-included conda
-    # package, matching the roms-tools metapackage philosophy): the blueprint
-    # wizard runs under voila/jupyter out of the box --
-    - jupyterlab
-    - voila
-    - papermill
-    - ipywidgets
-    # matplotlib-base (not the `matplotlib` GUI metapackage): notebooks render
-    # via the inline/Agg backends; keeps pyqt out of the default install.
-    - matplotlib-base
-  run_constraints:
-    # copernicusmarine 2.4.x's conda-forge package under-pins click
-    # (>=8.0.4,<8.3) relative to its own wheel metadata (>8.2.0,!=8.3.0,
-    # !=8.3.1), so an unconstrained solve can pick click 8.1.x and fail
-    # `pip check`. Constrain to the intersection; drop once the
-    # copernicusmarine feedstock aligns its pin.
-    - click >8.2.0,<8.3.0
+    # Everything forge needs -- code, data, wizard, CLI -- is in cstar-ocean now;
+    # this package only carries the import-compatibility shim.
+    - cstar-ocean >=0.15.0
 
 tests:
   - python:
@@ -92,16 +43,18 @@ tests:
       python_version:
         - ${{ python_min }}.*
         - "*"
+  - script:
+      - cstar forge --help
 
 about:
   homepage: https://github.com/CWorthy-ocean/cstar-forge
-  summary: Generates regional oceanographic modeling domains and reproducible C-Star workflows
+  summary: Compatibility shim -- cstar-forge has moved into cstar-ocean (cstar.applications.forge)
   description: |
-    C-STAR Forge generates regional oceanographic modeling domains and
-    reproducible C-Star workflows. It automates the creation of ROMS-MARBL
-    domains by producing all required input files (grids, initial conditions,
-    forcing, boundaries, rivers, tidal forcing) from observational and
-    reanalysis datasets.
+    C-Star Forge, the ROMS-MARBL domain generator, now lives inside
+    cstar-ocean (`cstar.applications.forge`, `cstar.catalog`, `cstar.wizard`,
+    and the `cstar forge` CLI). This package is a compatibility shim: it depends
+    on cstar-ocean and re-exports the old `cstar_forge` import paths with a
+    deprecation warning. Install cstar-ocean directly for new environments.
   license: Apache-2.0
   license_file: LICENSE
 
